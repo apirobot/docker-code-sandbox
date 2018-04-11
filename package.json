@@ -1,5 +1,5 @@
 {
-  "name": "docker-python-sandbox",
+  "name": "docker-code-sandbox",
   "version": "0.0.7",
   "description": "A docker-based sandbox to execute untrusted python code",
   "main": "./lib/Sandbox",
