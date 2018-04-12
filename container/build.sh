@@ -1,5 +1,5 @@
 #!/bin/bash
-IMAGE_NAME="apirobot/docker_sandbox"
+IMAGE_NAME="apirobot/docker-sandbox"
 JDK_PATH="jdk8.tar.gz"
 
 if [ $# = 1 ]; then
