@@ -1,5 +1,6 @@
 module.exports = {
   javascript: ".js",
   php: ".php",
-  python: ".py"
+  python: ".py",
+  java: ".java" 
 };
