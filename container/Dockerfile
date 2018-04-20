@@ -16,13 +16,17 @@ RUN apt-get update
 # Install python 3
 RUN apt-get install -y python3
 
-# Install Java 8
-RUN mkdir -p /usr/lib/jvm/
-COPY jdk8.tar.gz /tmp/jdk8.tar.gz
-RUN tar -xvf /tmp/jdk8.tar.gz -C /usr/lib/jvm/
-RUN rm -rf /tmp/jdk8.tar.gz
-RUN ln -s /usr/lib/jvm/jdk1.8.0_121/bin/java /usr/bin/java
-RUN ln -s /usr/lib/jvm/jdk1.8.0_121/bin/javac /usr/bin/javac
+# Install java
+RUN apt-get install -y python-software-properties software-properties-common
+RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | tee /etc/apt/sources.list.d/webupd8team-java.list
+RUN echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu xenial main" | tee -a /etc/apt/sources.list.d/webupd8team-java.list
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
+RUN apt-get update
+RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+RUN apt-get install -y oracle-java8-installer
+
+# Install mono
+RUN apt-get install -y mono-devel
 
 # Install PHP
 RUN apt-get install -y php5-cli
