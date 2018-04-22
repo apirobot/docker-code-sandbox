@@ -19,18 +19,18 @@ class ExecutorService {
       throw new Error("I don't know how to execute the " + languageName + " language")
     }
 
-    async.eachOf(stdin, function (stdin_, index, callback) {
-      const dirname = path.join('temp', uuid())
-      fs.mkdirSync(dirname)
-      const filename = path.join(dirname, 'code' + (extensions[languageName] || ''))
-      fs.writeFileSync(filename, code)
+    const dirname = path.join('temp', uuid())
+    fs.mkdirSync(dirname)
+    const filename = path.join(dirname, 'code' + (extensions[languageName] || ''))
+    fs.writeFileSync(filename, code)
 
+    async.eachOfSeries(stdin, function (stdin_, index, callback) {
       const job = child_process.spawn(executor, [ filename ], { cwd: __dirname })
 
+      job.stdin.setEncoding('utf8')
+
       if (stdin_) {
-        job.stdin.setEncoding('utf8')
         job.stdin.write(stdin_)
-        job.stdin.end()
       }
 
       job.stdout.on('data', function (data) {
@@ -43,6 +43,8 @@ class ExecutorService {
         output[index].combined += data
       })
 
+      job.stdin.end()
+
       const timeoutCheck = setTimeout(function () {
         console.error("Process timed out. Killing")
         job.kill('SIGKILL');
@@ -51,11 +53,11 @@ class ExecutorService {
 
       job.on('close', function (exitCode) {
         clearTimeout(timeoutCheck);
-        rmdir(dirname, _.noop)
         output[index] = _.assign(output[index], { isError: exitCode != 0 })
         callback()
       })
     }, function (err) {
+      rmdir(dirname, _.noop)
       cb(output)
     })
   }
