@@ -7,6 +7,24 @@ let rmdir = require('rimraf')
 let uuid = require('uuid').v4
 let extensions = require('./extensions')
 
+const JAVASCRIPT_REQUIRED_CODE = `
+const print = (data) => console.log(data);
+
+const readline = () => {
+  return new Promise((resolve) => {
+    const _readline = require('readline');
+
+    const _rl = _readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    _rl.on('line', (_stdin) => {
+      resolve(_stdin);
+    });
+  })
+};
+`
 
 class ExecutorService {
   execute (code, languageName, stdin, timeoutMs, cb) {
@@ -19,10 +37,7 @@ class ExecutorService {
       throw new Error("I don't know how to execute the " + languageName + " language")
     }
 
-    const dirname = path.join('temp', uuid())
-    fs.mkdirSync(dirname)
-    const filename = path.join(dirname, 'code' + (extensions[languageName] || ''))
-    fs.writeFileSync(filename, code)
+    const { dirname, filename } = this._createExecutionFile({ languageName, code })
 
     async.eachOfSeries(stdin, function (stdin_, index, callback) {
       const job = child_process.spawn(executor, [ filename ], { cwd: __dirname })
@@ -60,6 +75,21 @@ class ExecutorService {
       rmdir(dirname, _.noop)
       cb(output)
     })
+  }
+  _createExecutionFile ({ languageName, code }) {
+    const dirname = path.join('temp', uuid())
+    fs.mkdirSync(dirname)
+
+    const filename = path.join(dirname, 'code' + (extensions[languageName] || ''))
+    switch (languageName) {
+      case 'javascript':
+        fs.writeFileSync(filename, JAVASCRIPT_REQUIRED_CODE + code)
+        break
+      default:
+        fs.writeFileSync(filename, code)
+    }
+
+    return { dirname, filename }
   }
 }
 
