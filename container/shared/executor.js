@@ -8,17 +8,17 @@ let uuid = require('uuid').v4
 let extensions = require('./extensions')
 
 const JAVASCRIPT_REQUIRED_CODE = `
+const _readline = require('readline');
+
 const print = (data) => console.log(data);
+
+const _rl = _readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
 
 const readline = () => {
   return new Promise((resolve) => {
-    const _readline = require('readline');
-
-    const _rl = _readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-
     _rl.on('line', (_stdin) => {
       resolve(_stdin);
     });
