@@ -1,5 +1,13 @@
 FROM node:9
 
+RUN apt-get update && apt-get install -y locales locales-all
+
+RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
 COPY ./shared /usr/src/app
 
 RUN ["adduser",  "--home",  "/usr/src/app", "--system", "sandboxuser"]
@@ -10,8 +18,6 @@ RUN cd /usr/src/app && npm install
 
 COPY start.sh /
 RUN chmod 755 /start.sh
-
-RUN apt-get update
 
 # Install python 3
 RUN apt-get install -y python3
