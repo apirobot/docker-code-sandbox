@@ -19,6 +19,9 @@ RUN cd /usr/src/app && npm install
 COPY start.sh /
 RUN chmod 755 /start.sh
 
+# Install c/c++
+RUN apt-get install -y gcc g++
+
 # Install python 3
 RUN apt-get install -y python3
 
